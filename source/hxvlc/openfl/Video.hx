@@ -13,6 +13,7 @@ import cpp.UInt32;
 import cpp.UInt64;
 import cpp.UInt8;
 import cpp.VoidStarConstStar;
+import cpp.vm.Gc;
 
 import haxe.Int64;
 import haxe.MainLoop;
@@ -466,10 +467,14 @@ class Video extends openfl.display.Bitmap
 	{
 		super(null, AUTO, smoothing);
 
-		while (Handle.loading)
-			Sys.sleep(0.05);
+		{
+			while (Handle.loading)
+				Sys.sleep(0.05);
 
-		Handle.init();
+			Handle.init();
+		}
+
+		Gc.doNotKill(this);
 	}
 
 	/**
@@ -1249,6 +1254,8 @@ class Video extends openfl.display.Bitmap
 
 		__setRenderDirty();
 
+		__imageVersion = -1;
+
 		return __bitmapData;
 	}
 
@@ -1317,7 +1324,7 @@ class Video extends openfl.display.Bitmap
 	@:noCompletion
 	@:noDebug
 	@:unreflective
-	private function videoLock(planes:RawPointer<RawPointer<Void>>):RawPointer<Void>
+	private function videoLock(planes:RawPointer<RawPointer<cpp.Void>>):RawPointer<cpp.Void>
 	{
 		textureMutex.acquire();
 
@@ -1340,35 +1347,14 @@ class Video extends openfl.display.Bitmap
 	@:noCompletion
 	@:noDebug
 	@:unreflective
-	private function videoDisplay(picture:RawPointer<Void>):Void
+	private function videoDisplay(picture:RawPointer<cpp.Void>):Void
 	{
-		if (__renderable || forceRendering)
+		if ((__renderable || forceRendering) && bitmapData != null)
 		{
-			MainLoop.runInMainThread(function():Void
-			{
-				if (isValid() && texturePlanes != null)
-				{
-					textureMutex.acquire();
-
-					if (bitmapData != null)
-					{
-						final texturePlanesData:Bytes = Bytes.ofData(texturePlanes);
-
-						if (bitmapData.__texture != null)
-							cast(bitmapData.__texture, VideoTexture).uploadFromTypedArray(UInt8Array.fromBytes(texturePlanesData));
-						else if (bitmapData.image != null)
-							bitmapData.setPixels(bitmapData.rect, texturePlanesData);
-
-						if (__renderable)
-							__setRenderDirty();
-					}
-
-					if (onDisplay != null)
-						onDisplay.dispatch();
-
-					textureMutex.release();
-				}
-			});
+			if (bitmapData.image != null && bitmapData.readable)
+				updateImage();
+			else
+				updateTexture();
 		}
 	}
 
@@ -1438,12 +1424,12 @@ class Video extends openfl.display.Bitmap
 					if (useTexture)
 					{
 						@:nullSafety(Off)
-						if (Lib.current.stage != null && Lib.current.stage.context3D != null)
+						if (Lib.current.stage?.context3D != null)
 						{
 							bitmapData.disposeImage();
 
 							{
-								bitmapData.__texture = new VideoTexture(Lib.current.stage.context3D, bitmapData);
+								bitmapData.__texture = new VideoTexture(Lib.current.stage.context3D, bitmapData, textureWidth * textureHeight * 4);
 								bitmapData.__textureContext = bitmapData.__texture.__textureContext;
 								bitmapData.__surface = null;
 							}
@@ -1782,6 +1768,57 @@ class Video extends openfl.display.Bitmap
 	private inline function isValid():Bool
 	{
 		return mediaPlayer != null;
+	}
+
+	@:noCompletion
+	@:noDebug
+	@:unreflective
+	private function updateImage():Void
+	{
+		textureMutex.acquire();
+
+		if (texturePlanes != null)
+		{
+			bitmapData.image.buffer.data = UInt8Array.fromBytes(Bytes.ofData(texturePlanes));
+			bitmapData.image.dirty = true;
+			bitmapData.image.version++;
+		}
+
+		if (onDisplay != null)
+			onDisplay.dispatch();
+
+		textureMutex.release();
+	}
+
+	@:noCompletion
+	@:noDebug
+	@:unreflective
+	private function updateTexture():Void
+	{
+		MainLoop.runInMainThread(function():Void
+		{
+			if (!isValid() || bitmapData == null || texturePlanes == null)
+				return;
+
+			textureMutex.acquire();
+
+			final texture:Null<VideoTexture> = cast(bitmapData.__texture, VideoTexture);
+
+			if (texture != null)
+			{
+				final texturePlanesArray:UInt8Array = UInt8Array.fromBytes(Bytes.ofData(texturePlanes));
+
+				texture.uploadFromTypedArray(texturePlanesArray);
+
+				if (__renderable)
+					__setRenderDirty();
+			}
+
+			if (onDisplay != null)
+				onDisplay.dispatch();
+
+			textureMutex.release();
+		});
 	}
 
 	@:noCompletion
