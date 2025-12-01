@@ -90,12 +90,12 @@ class Handle
 		if (loading)
 			return;
 
-		MainLoop.addThread(function():Void
+		#if haxe5 MainLoop.add #else MainLoop.addThread #end (function():Void
 		{
 			final success:Bool = init(options);
 
 			if (finishCallback != null)
-				MainLoop.runInMainThread(finishCallback.bind(success));
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (finishCallback.bind(success));
 		});
 	}
 

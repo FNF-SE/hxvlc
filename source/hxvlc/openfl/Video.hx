@@ -1396,7 +1396,7 @@ class Video extends openfl.display.Bitmap
 
 		textureMutex.release();
 
-		MainLoop.runInMainThread(function():Void
+		#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end(function():Void
 		{
 			if (!isValid())
 				return;
@@ -1626,31 +1626,31 @@ class Video extends openfl.display.Bitmap
 		switch (p_event[0].type)
 		{
 			case event if (event == LibVLC_MediaPlayerOpening):
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onOpening != null)
 						onOpening.dispatch();
 				});
 			case event if (event == LibVLC_MediaPlayerPlaying):
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onPlaying != null)
 						onPlaying.dispatch();
 				});
 			case event if (event == LibVLC_MediaPlayerStopped):
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onStopped != null)
 						onStopped.dispatch();
 				});
 			case event if (event == LibVLC_MediaPlayerPaused):
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onPaused != null)
 						onPaused.dispatch();
 				});
 			case event if (event == LibVLC_MediaPlayerEndReached):
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onEndReached != null)
 						onEndReached.dispatch();
@@ -1658,7 +1658,7 @@ class Video extends openfl.display.Bitmap
 			case event if (event == LibVLC_MediaPlayerEncounteredError):
 				final errmsg:String = LibVLC.errmsg();
 
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onEncounteredError != null)
 					{
@@ -1672,7 +1672,7 @@ class Video extends openfl.display.Bitmap
 				final iType:LibVLC_Track_Type = untyped __cpp__('{0}.u.media_player_es_changed.i_type', p_event[0]);
 				final iID:Int = untyped __cpp__('{0}.u.media_player_es_changed.i_id', p_event[0]);
 
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onESAdded != null)
 						onESAdded.dispatch((iType : Int), iID);
@@ -1681,7 +1681,7 @@ class Video extends openfl.display.Bitmap
 				final iType:LibVLC_Track_Type = untyped __cpp__('{0}.u.media_player_es_changed.i_type', p_event[0]);
 				final iID:Int = untyped __cpp__('{0}.u.media_player_es_changed.i_id', p_event[0]);
 
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onESDeleted != null)
 						onESDeleted.dispatch((iType : Int), iID);
@@ -1690,19 +1690,19 @@ class Video extends openfl.display.Bitmap
 				final iType:LibVLC_Track_Type = untyped __cpp__('{0}.u.media_player_es_changed.i_type', p_event[0]);
 				final iID:Int = untyped __cpp__('{0}.u.media_player_es_changed.i_id', p_event[0]);
 
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onESSelected != null)
 						onESSelected.dispatch((iType : Int), iID);
 				});
 			case event if (event == LibVLC_MediaPlayerCorked):
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onCorked != null)
 						onCorked.dispatch();
 				});
 			case event if (event == LibVLC_MediaPlayerUncorked):
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onUncorked != null)
 						onUncorked.dispatch();
@@ -1710,7 +1710,7 @@ class Video extends openfl.display.Bitmap
 			case event if (event == LibVLC_MediaPlayerTimeChanged):
 				final newTime:Int64 = untyped __cpp__('{0}.u.media_player_time_changed.new_time', p_event[0]);
 
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onTimeChanged != null)
 						onTimeChanged.dispatch(newTime);
@@ -1718,7 +1718,7 @@ class Video extends openfl.display.Bitmap
 			case event if (event == LibVLC_MediaPlayerPositionChanged):
 				final newPosition:Single = untyped __cpp__('{0}.u.media_player_position_changed.new_position', p_event[0]);
 
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onPositionChanged != null)
 						onPositionChanged.dispatch(newPosition);
@@ -1726,7 +1726,7 @@ class Video extends openfl.display.Bitmap
 			case event if (event == LibVLC_MediaPlayerLengthChanged):
 				final newLength:Int64 = untyped __cpp__('{0}.u.media_player_length_changed.new_length', p_event[0]);
 
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onLengthChanged != null)
 						onLengthChanged.dispatch(newLength);
@@ -1734,13 +1734,13 @@ class Video extends openfl.display.Bitmap
 			case event if (event == LibVLC_MediaPlayerChapterChanged):
 				final newChapter:Int = untyped __cpp__('{0}.u.media_player_chapter_changed.new_chapter', p_event[0]);
 
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onChapterChanged != null)
 						onChapterChanged.dispatch(newChapter);
 				});
 			case event if (event == LibVLC_MediaPlayerMediaChanged):
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onMediaChanged != null)
 						onMediaChanged.dispatch();
@@ -1748,13 +1748,13 @@ class Video extends openfl.display.Bitmap
 			case event if (event == LibVLC_MediaParsedChanged):
 				final newStatus:Int = untyped __cpp__('{0}.u.media_parsed_changed.new_status', p_event[0]);
 
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onMediaParsedChanged != null)
 						onMediaParsedChanged.dispatch(newStatus);
 				});
 			case event if (event == LibVLC_MediaMetaChanged):
-				MainLoop.runInMainThread(function():Void
+				#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end (function():Void
 				{
 					if (isValid() && onMediaMetaChanged != null)
 						onMediaMetaChanged.dispatch();
@@ -1795,7 +1795,7 @@ class Video extends openfl.display.Bitmap
 	@:unreflective
 	private function updateTexture():Void
 	{
-		MainLoop.runInMainThread(function():Void
+		#if haxe5 haxe.EventLoop.main.run #else MainLoop.runInMainThread #end(function():Void
 		{
 			if (!isValid() || bitmapData == null || texturePlanes == null)
 				return;
